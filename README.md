@@ -14,12 +14,13 @@
     - configure  
       $ cd qemu  
       $ ./configure --target-list=aarch64-softmmu --enable-debug
-    - make  
-      $ make -j$(nproc)  
       - ensurepip 모듈 error 발생시  
         `sudo apt update`  
         `sudo apt install python3-venv python3-pip python3-tomli`  
         `sudo apt install ninja-build python3-sphinx`
+
+    - make  
+      $ make -j$(nproc)  
 
     - Result  
       $ ./build/qemu-system-aarch64 -version  
