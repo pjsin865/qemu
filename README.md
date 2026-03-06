@@ -12,20 +12,20 @@
 
   - Build
     - configure  
-      $ cd qemu  
-      $ ./configure --target-list=aarch64-softmmu --enable-debug
+      $ `cd qemu`  
+      $ `./configure --target-list=aarch64-softmmu --enable-debug`
       - ensurepip 모듈 error 발생시  
         `sudo apt update`  
         `sudo apt install python3-venv python3-pip python3-tomli`  
         `sudo apt install ninja-build python3-sphinx`
 
     - make  
-      $ make -j$(nproc)  
+      $ `make -j$(nproc)`  
 
     - Result  
-      $ ./build/qemu-system-aarch64 -version  
-        QEMU emulator version 10.2.50 (v10.2.0-1854-g314ff2e07d)  
-        Copyright (c) 2003-2026 Fabrice Bellard and the QEMU Project developers
+      $ `./build/qemu-system-aarch64 -version`  
+          QEMU emulator version 10.2.50 (v10.2.0-1854-g314ff2e07d)  
+          Copyright (c) 2003-2026 Fabrice Bellard and the QEMU Project developers
 
 
 
