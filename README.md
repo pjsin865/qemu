@@ -30,5 +30,16 @@
 # 2. Buildroot
   - Download(later)  
     $ `git clone https://github.com/buildroot/buildroot.git`  
+  
+  - Build
+    - configure  
+      $ `cd qemu`  
+      $ `./configure --target-list=aarch64-softmmu --enable-debug`
+      - ensurepip 모듈 error 발생시  
+        `sudo apt update`  
+        `sudo apt install python3-venv python3-pip python3-tomli`  
+        `sudo apt install ninja-build python3-sphinx`
 
+    - make  
+      $ `make -j$(nproc)`  
 
