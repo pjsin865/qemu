@@ -10,8 +10,9 @@
 
 # 1. QEMU
   - Download(later)  
-    $ `git clone https://github.com/qemu/qemu.git`  
-    - ensurepip 모듈 error 발생시
+    $ `git clone https://github.com/qemu/qemu.git`
+    
+    - ensurepip 모듈 error 발생시  
     `sudo apt update`  
     `sudo apt install python3-venv python3-pip`
 
