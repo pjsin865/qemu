@@ -14,7 +14,8 @@
     
     - ensurepip 모듈 error 발생시  
       `sudo apt update`  
-      `sudo apt install python3-venv python3-pip python3-tomli`
+      `sudo apt install python3-venv python3-pip python3-tomli`  
+      `sudo apt install ninja-build python3-sphinx`  
 
 
 
