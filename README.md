@@ -33,12 +33,18 @@
   
   - Build
     - configure  
-      $ `cd qemu`  
-      $ `./configure --target-list=aarch64-softmmu --enable-debug`
-      - ensurepip 모듈 error 발생시  
-        `sudo apt update`  
-        `sudo apt install python3-venv python3-pip python3-tomli`  
-        `sudo apt install ninja-build python3-sphinx`
+      $ `cd buildroot`  
+      $ `make qemu_aarch64_virt_defconfig`
+      $ `make menuconfig`
+          Toolchain --->  
+            C library (glibc)  --->  
+            Custom kernel headers series (6.18.x)  --->  
+        [*] Build cross gdb for the host  
+        [*]     TUI support  
+                Python support (Python 3)  --->  
+        [*]     Simulator support
+      
+      $ `make savedefconfig`
 
     - make  
       $ `make -j$(nproc)`  
