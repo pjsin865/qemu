@@ -56,6 +56,6 @@
 
     $ `make linux-savedefconfig`  
 
-  - build
+  - build  
     $ `make linux`  
     
