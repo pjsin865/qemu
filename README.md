@@ -9,4 +9,6 @@
     
 
 # 1. QEMU
-- Download(later)
+  - Download(later)
+    `$ git clone https://github.com/qemu/qemu.git`
+
