@@ -35,14 +35,14 @@
     - configure  
       $ `cd buildroot`  
       $ `make qemu_aarch64_virt_defconfig`
-      $ `make menuconfig`
+      $ `make menuconfig`  
           Toolchain --->  
             C library (glibc)  --->  
             Custom kernel headers series (6.18.x)  --->  
-        [*] Build cross gdb for the host  
-        [*]     TUI support  
+            [*] Build cross gdb for the host  
+                [*]     TUI support  
                 Python support (Python 3)  --->  
-        [*]     Simulator support
+                [*]     Simulator support
       
       $ `make savedefconfig`
 
