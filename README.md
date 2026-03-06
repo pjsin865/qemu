@@ -50,3 +50,12 @@
     - make  
       $ `make -j$(nproc)`  
 
+# 3. Kernel
+  - Kernel config  
+    $ `make linux-menuconfig`  
+
+    $ `make linux-savedefconfig`  
+
+  - build
+    $ `make linux`  
+    
