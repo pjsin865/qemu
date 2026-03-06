@@ -10,17 +10,21 @@
   - Download(later)  
     $ `git clone https://github.com/qemu/qemu.git`
 
-  - Build  
+  - Build
     - configure  
       $ cd qemu  
-      $ ./configure --target-list=aarch64-softmmu --enable-debug    
+      $ ./configure --target-list=aarch64-softmmu --enable-debug
     - make  
       $ make -j$(nproc)  
+      - ensurepip 모듈 error 발생시  
+        `sudo apt update`  
+        `sudo apt install python3-venv python3-pip python3-tomli`  
+        `sudo apt install ninja-build python3-sphinx`
 
-   - ensurepip 모듈 error 발생시  
-      `sudo apt update`  
-      `sudo apt install python3-venv python3-pip python3-tomli`  
-      `sudo apt install ninja-build python3-sphinx`  
+    - Result
+      $ ./build/qemu-system-aarch64 -version  
+        QEMU emulator version 6.0.93 (v6.1.0-rc3)
+        Copyright (c) 2003-2021 Fabrice Bellard and the QEMU Project developers
 
 
 
