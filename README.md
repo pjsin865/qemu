@@ -21,7 +21,7 @@
         `sudo apt install python3-venv python3-pip python3-tomli`  
         `sudo apt install ninja-build python3-sphinx`
 
-    - Result
+    - Result  
       $ ./build/qemu-system-aarch64 -version  
         QEMU emulator version 6.0.93 (v6.1.0-rc3)
         Copyright (c) 2003-2021 Fabrice Bellard and the QEMU Project developers
