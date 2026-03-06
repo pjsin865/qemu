@@ -12,9 +12,8 @@
 
   - Build  
     - configure  
-    - configure  
       $ cd qemu  
-      $ ./configure --target-list=aarch64-softmmu --enable-debug  
+      $ ./configure --target-list=aarch64-softmmu --enable-debug    
     - make  
       $ make -j$(nproc)  
 
