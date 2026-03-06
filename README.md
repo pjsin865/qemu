@@ -52,7 +52,10 @@
 
 # 3. Kernel
   - Kernel config  
-    $ `make linux-menuconfig`  
+    $ `make linux-menuconfig`
+
+        → Kernel hacking → printk and dmesg options
+          CONFIG_PRINTK_TIME
 
     $ `make linux-savedefconfig`  
 
