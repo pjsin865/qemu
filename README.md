@@ -34,7 +34,7 @@
   - Build
     - configure  
       $ `cd buildroot`  
-      $ `make qemu_aarch64_virt_defconfig`
+      $ `make qemu_aarch64_virt_defconfig`  
       $ `make menuconfig`  
 
           Toolchain --->  
@@ -43,8 +43,8 @@
             [*] Build cross gdb for the host  
                 [*]     TUI support  
                 Python support (Python 3)  --->  
-                [*]     Simulator support
-      
+                [*]     Simulator support  
+
       $ `make savedefconfig`
 
     - make  
