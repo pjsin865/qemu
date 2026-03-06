@@ -24,8 +24,8 @@
 
     - Result  
       $ ./build/qemu-system-aarch64 -version  
-        QEMU emulator version 6.0.93 (v6.1.0-rc3)
-        Copyright (c) 2003-2021 Fabrice Bellard and the QEMU Project developers
+        QEMU emulator version 10.2.50 (v10.2.0-1854-g314ff2e07d)  
+        Copyright (c) 2003-2026 Fabrice Bellard and the QEMU Project developers
 
 
 
