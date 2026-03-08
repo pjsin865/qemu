@@ -61,7 +61,7 @@
     $ `make linux-savedefconfig`  
 
   - build  
-    $ `make linux-rebuild -j8`
+    $ `make linux-rebuild -j$(nproc)`
 
 
 
