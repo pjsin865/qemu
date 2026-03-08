@@ -24,6 +24,7 @@
 
     - Result  
       $ `./build/qemu-system-aarch64 -version`  
+
           QEMU emulator version 10.2.50 (v10.2.0-1854-g314ff2e07d)  
           Copyright (c) 2003-2026 Fabrice Bellard and the QEMU Project developers
 
