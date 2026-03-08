@@ -61,5 +61,7 @@
     $ `make linux-savedefconfig`  
 
   - build  
-    $ `make linux`  
+    $ `make linux`
+      or
+    $ `make linux-rebuild -j8`
     
