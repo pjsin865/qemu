@@ -55,6 +55,7 @@
 
 # 3. Kernel in Buildroot
   - Kernel config  
+    $ `cd buildroot`  
     $ `make linux-menuconfig`
 
         → Kernel hacking → printk and dmesg options
