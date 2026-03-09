@@ -53,7 +53,7 @@
     - make  
       $ `make -j$(nproc)`  
 
-# 3. Kernel
+# 3. Kernel in Buildroot
   - Kernel config  
     $ `make linux-menuconfig`
 
