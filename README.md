@@ -15,7 +15,7 @@
   - Build
     - configure  
       $ `cd qemu`  
-      $ `./configure --target-list=aarch64-softmmu --enable-debug`
+      $ `./configure --target-list=aarch64-softmmu --enable-debug --enable-slirp`
       - ensurepip 모듈 error 발생시  
         `sudo apt update`  
         `sudo apt install python3-venv python3-pip python3-tomli`  
