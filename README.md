@@ -73,10 +73,10 @@
     $ `cd buildroot`  
     
         ## Create image
-        #    qemu-img create -o size=100M my_disk_raw.raw
-        #    qemu-img create -f qcow2 my_disk_qcow2.img
+        $ qemu-img create -o size=100M my_disk_raw.raw
+        $ qemu-img create -f qcow2 my_disk_qcow2.img
 
-        ./output/build/host-qemu-10.2.0/build/qemu-system-aarch64 \
+        $ ./output/build/host-qemu-10.2.0/build/qemu-system-aarch64 \
             -M virt -cpu cortex-a53 -smp 2 -m 1024M \
             -nographic \
             \
