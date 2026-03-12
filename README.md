@@ -72,14 +72,18 @@
   - Run to QEMU  
     $ `cd buildroot`  
     
-        ./buildroot/output/build/host-qemu-10.2.0/build/qemu-system-aarch64 \
+        ## Create image
+        #    qemu-img create -o size=100M my_disk_raw.raw
+        #    qemu-img create -f qcow2 my_disk_qcow2.img
+
+        ./output/build/host-qemu-10.2.0/build/qemu-system-aarch64 \
             -M virt -cpu cortex-a53 -smp 2 -m 1024M \
             -nographic \
             \
-            -kernel ./buildroot/output/images/Image \
+            -kernel ./output/images/Image \
             -append "rootwait root=/dev/vda console=ttyAMA0" \
             \
-            -drive file=./buildroot/output/images/rootfs.ext4,if=none,format=raw,id=hd0 \
+            -drive file=./output/images/rootfs.ext4,if=none,format=raw,id=hd0 \
             -device virtio-blk-device,drive=hd0  ${EXTRA_ARGS} "$@" \
             \
             -netdev user,id=eth0 -device virtio-net-device,netdev=eth0 \
