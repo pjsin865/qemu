@@ -68,5 +68,24 @@
   - build  
     $ `make linux-rebuild -j$(nproc)`
 
+# 4. Run
+  - Run to QEMU
+    $ `cd buildroot`
+    
+        → ./buildroot/output/build/host-qemu-10.2.0/build/qemu-system-aarch64 \
+        -M virt -cpu cortex-a53 -smp 2 -m 1024M \
+        -nographic \
+        \
+        -kernel ./buildroot/output/images/Image \
+        -append "rootwait root=/dev/vda console=ttyAMA0" \
+        \
+        -drive file=./buildroot/output/images/rootfs.ext4,if=none,format=raw,id=hd0 \
+        -device virtio-blk-device,drive=hd0  ${EXTRA_ARGS} "$@" \
+        \
+        -netdev user,id=eth0 -device virtio-net-device,netdev=eth0 \
+        -netdev user,id=eth1 -device virtio-net-device,netdev=eth1 \
+        \
+        -drive file=my_disk_qcow2.img,if=none,id=drive0,format=qcow2 \
+        -device virtio-blk-pci,drive=drive0,id=virtio-disk0,bus=pcie.0,addr=04.0
 
 
