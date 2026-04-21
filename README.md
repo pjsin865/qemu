@@ -7,8 +7,7 @@
 </div>
   
   - Ubuntu 22.04  
-
-#
+  
 # 1. QEMU  
   `QEMU는 Buildroot 내 package를 사용하여도 되며, 기본적으로 포함되어 있다.`  
 
@@ -32,7 +31,7 @@
 
           QEMU emulator version 10.2.50 (v10.2.0-1854-g314ff2e07d)  
           Copyright (c) 2003-2026 Fabrice Bellard and the QEMU Project developers
-
+# 
 # 2. Buildroot
   - Download(later)  
     $ `git clone https://github.com/buildroot/buildroot.git`  
@@ -68,15 +67,15 @@
 
     - make  
       $ `make -j$(nproc)`  
-
+# 
 # 3. ATF in Buildroot
   - build  
     $ `make arm-trusted-firmware-dirclean`
-
+# 
 # 4. U-Boot in Buildroot
   - build  
     $ `make arm-trusted-firmware-dirclean`
-
+# 
 # 5. Kernel in Buildroot
   - Kernel config  
     $ `cd buildroot`  
@@ -89,7 +88,7 @@
 
   - build  
     $ `make linux-rebuild -j$(nproc)`
-
+# 
 # 6. Run
   - Run to QEMU  
     $ `cd buildroot`  
