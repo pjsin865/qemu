@@ -52,6 +52,8 @@
           -- U-Boot --  
           Bootloaders  --->  
               [*] U-Boot  --->  
+              (qemu_arm64) Board defconfig  
+      
           -- Kernel --  
           Toolchain --->  
             C library (glibc)  --->  
