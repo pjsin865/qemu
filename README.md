@@ -72,7 +72,11 @@
   - build  
     $ `make arm-trusted-firmware-dirclean`
 
-# 3. Kernel in Buildroot
+# 4. U-Boot in Buildroot
+  - build  
+    $ `make arm-trusted-firmware-dirclean`
+
+# 5. Kernel in Buildroot
   - Kernel config  
     $ `cd buildroot`  
     $ `make linux-menuconfig`
@@ -85,7 +89,7 @@
   - build  
     $ `make linux-rebuild -j$(nproc)`
 
-# 4. Run
+# 6. Run
   - Run to QEMU  
     $ `cd buildroot`  
     
