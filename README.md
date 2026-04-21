@@ -42,7 +42,9 @@
       $ `make qemu_aarch64_virt_defconfig`  
       $ `make menuconfig`  
 
-          -- ATF    --  
+          -- ATF    --
+          Bootloaders  --->  
+  
           -- U-Boot --  
           -- Kernel --  
           Toolchain --->  
