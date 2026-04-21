@@ -44,8 +44,14 @@
 
           -- ATF    --
           Bootloaders  --->  
-  
+            [*] ARM Trusted Firmware (ATF)  --->  
+                (qemu) ATF platform
+                [*]   Build FIP image
+                [*]   Build BL31 image  
+      
           -- U-Boot --  
+          Bootloaders  --->  
+              [*] U-Boot  --->  
           -- Kernel --  
           Toolchain --->  
             C library (glibc)  --->  
