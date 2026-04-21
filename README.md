@@ -8,6 +8,7 @@
   
   - Ubuntu 22.04  
 
+#
 # 1. QEMU  
   `QEMU는 Buildroot 내 package를 사용하여도 되며, 기본적으로 포함되어 있다.`  
 
