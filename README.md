@@ -42,6 +42,8 @@
       $ `make qemu_aarch64_virt_defconfig`  
       $ `make menuconfig`  
 
+          -- ATF    --  
+          -- U-Boot --  
           -- Kernel --  
           Toolchain --->  
             C library (glibc)  --->  
