@@ -66,7 +66,7 @@
       $ `make savedefconfig`
 
     - make  
-      $ `make -j$(nproc)`  
+      $ `make -j$(nproc)`
 # 
 # 3. ATF in Buildroot
   - build  
@@ -74,7 +74,7 @@
 # 
 # 4. U-Boot in Buildroot
   - build  
-    $ `make arm-trusted-firmware-dirclean`
+    $ `make uboot-rebuild -j$(nproc)`
 # 
 # 5. Kernel in Buildroot
   - Kernel config  
