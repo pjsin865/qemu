@@ -68,6 +68,10 @@
     - make  
       $ `make -j$(nproc)`  
 
+# 3. ATF in Buildroot
+  - build  
+    $ `make arm-trusted-firmware-dirclean`
+
 # 3. Kernel in Buildroot
   - Kernel config  
     $ `cd buildroot`  
