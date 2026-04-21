@@ -42,8 +42,6 @@
       $ `make qemu_aarch64_virt_defconfig`  
       $ `make menuconfig`  
 
-        - Kernel  
-
           Toolchain --->  
             C library (glibc)  --->  
             Custom kernel headers series (6.18.x)  --->  
