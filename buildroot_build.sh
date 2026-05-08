@@ -7,6 +7,7 @@ PARALLEL_JOBS="$(nproc)"
 BUILDROOT_REPO_URL="https://github.com/buildroot/buildroot.git"
 BUILDROOT_REPO_BRANCH="" # leave empty for default branch
 DEFAULT_DEFCONFIG="qemu_aarch64_virt_defconfig"
+PATCH_DIR="$TOP/buildroot_patches"
 
 usage() {
     cat <<EOF
@@ -51,6 +52,34 @@ ensure_buildroot() {
     fi
 }
 
+apply_buildroot_patches() {
+    if [ ! -d "$PATCH_DIR" ]; then
+        return
+    fi
+
+    shopt -s nullglob
+    local patches=("$PATCH_DIR"/*.patch)
+    shopt -u nullglob
+
+    if [ ${#patches[@]} -eq 0 ]; then
+        return
+    fi
+
+    for patch in "${patches[@]}"; do
+        echo "Applying patch: $patch"
+        if git apply --check "$patch" >/dev/null 2>&1; then
+            git apply "$patch"
+        else
+            if git apply --reverse --check "$patch" >/dev/null 2>&1; then
+                echo "Patch already applied: $patch"
+            else
+                echo "ERROR: failed to apply patch $patch" >&2
+                exit 1
+            fi
+        fi
+    done
+}
+
 if [ $# -ne 1 ] || [[ "$1" == "help" ]]; then
     usage
     exit 0
@@ -59,6 +88,8 @@ fi
 ensure_buildroot
 TARGET="$1"
 cd "$BUILDROOT_DIR"
+
+apply_buildroot_patches
 
 if [ ! -f .config ]; then
     echo "NOTICE: .config not found in buildroot. Configuring Buildroot..."
