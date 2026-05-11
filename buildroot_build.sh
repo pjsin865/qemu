@@ -91,16 +91,20 @@ cd "$BUILDROOT_DIR"
 
 apply_buildroot_patches
 
-if [ ! -f .config ]; then
-    echo "NOTICE: .config not found in buildroot. Configuring Buildroot..."
+apply_defconfig() {
     if [ -f .defconfig ]; then
         make defconfig
     elif [ -n "${BR2_DEFCONFIG:-}" ]; then
         make "$BR2_DEFCONFIG"
     else
-        echo "NOTICE: no local .defconfig found. Using default config: $DEFAULT_DEFCONFIG"
+        echo "NOTICE: Using default config: $DEFAULT_DEFCONFIG"
         make "$DEFAULT_DEFCONFIG"
     fi
+}
+
+if [ ! -f .config ]; then
+    echo "NOTICE: .config not found. Configuring Buildroot..."
+    apply_defconfig
 fi
 
 run_make() {
@@ -111,6 +115,7 @@ run_make() {
 
 case "$TARGET" in
     full)
+        apply_defconfig
         run_make "make -j\"$PARALLEL_JOBS\""
         ;;
     uboot)
@@ -121,6 +126,7 @@ case "$TARGET" in
         ;;
     full-clean)
         run_make "make clean"
+        apply_defconfig
         run_make "make -j\"$PARALLEL_JOBS\""
         ;;
     uboot-clean)
