@@ -53,3 +53,7 @@ dkms.conf
 
 # debug information files
 *.dwo
+
+# FreeRTOS source and build output
+FreeRTOS/
+freertos_images/
