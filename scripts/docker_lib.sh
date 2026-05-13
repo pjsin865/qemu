@@ -89,12 +89,20 @@ _install_docker_macos() {
 _resolve_docker_cmd() {
     if docker info >/dev/null 2>&1; then
         DOCKER_CMD="docker"
-    elif sudo docker info >/dev/null 2>&1; then
+    elif sudo -n docker info >/dev/null 2>&1; then
+        # -n: non-interactive (no password prompt), works when NOPASSWD is set
         DOCKER_CMD="sudo docker"
-        echo "Note: using 'sudo docker' (re-login to use docker without sudo)"
+        echo "Note: using 'sudo docker'"
+        echo "  To use docker without sudo: sudo usermod -aG docker \$USER && newgrp docker"
     else
-        echo "ERROR: Cannot connect to Docker daemon after installation." >&2
-        echo "  Try: sudo systemctl start docker" >&2
+        echo "" >&2
+        echo "ERROR: Cannot connect to Docker daemon." >&2
+        echo "" >&2
+        echo "  1. Add yourself to the docker group:" >&2
+        echo "       sudo usermod -aG docker \$USER && newgrp docker" >&2
+        echo "" >&2
+        echo "  2. Or start the Docker daemon:" >&2
+        echo "       sudo systemctl start docker" >&2
         exit 1
     fi
 }

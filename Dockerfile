@@ -14,7 +14,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libssl-dev libncurses-dev libelf-dev \
     bison flex unzip patch xz-utils \
     # ARM bare-metal toolchain (FreeRTOS)
-    gcc-arm-none-eabi binutils-arm-none-eabi \
+    gcc-arm-none-eabi binutils-arm-none-eabi libnewlib-arm-none-eabi \
     # QEMU
     qemu-system-arm qemu-system-aarch64 \
     && rm -rf /var/lib/apt/lists/*
