@@ -1,0 +1,11 @@
+diff --git a/board/qemu/aarch64-virt/linux.config b/board/qemu/aarch64-virt/linux.config
+index 971b9fcf..ef3a1366 100644
+--- a/board/qemu/aarch64-virt/linux.config
++++ b/board/qemu/aarch64-virt/linux.config
+@@ -1,5 +1,6 @@
+ CONFIG_SYSVIPC=y
+ CONFIG_POSIX_MQUEUE=y
++CONFIG_PRINTK_TIME=y
+ CONFIG_NO_HZ_IDLE=y
+ CONFIG_HIGH_RES_TIMERS=y
+ CONFIG_TASKSTATS=y
