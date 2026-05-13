@@ -10,17 +10,16 @@ DOCKER_IMAGE="qemu-dev:latest"
 _in_docker() { [ -f /.dockerenv ]; }
 
 if ! _in_docker; then
-    if ! command -v docker >/dev/null 2>&1; then
-        echo "ERROR: Docker not found."
-        echo "  Install Docker: https://docs.docker.com/get-docker/"
-        exit 1
-    fi
-    if ! docker image inspect "$DOCKER_IMAGE" >/dev/null 2>&1; then
+    # shellcheck source=scripts/docker_lib.sh
+    source "$TOP/scripts/docker_lib.sh"
+    _ensure_docker   # installs Docker if missing, sets DOCKER_CMD
+
+    if ! $DOCKER_CMD image inspect "$DOCKER_IMAGE" >/dev/null 2>&1; then
         echo "ERROR: Docker image '$DOCKER_IMAGE' not found. Run ./build.sh first." >&2
         exit 1
     fi
     # -it: allocate TTY for interactive QEMU serial console
-    exec docker run --rm -it \
+    exec $DOCKER_CMD run --rm -it \
         -v "$TOP:/workspace" \
         -w /workspace \
         "$DOCKER_IMAGE" \

@@ -4,8 +4,9 @@ set -euo pipefail
 TOP="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # ── Docker wrapper ────────────────────────────────────────────
-# When called on the host, re-exec inside a Docker container.
-# When already inside Docker (/.dockerenv exists), skip and build directly.
+# On the host: ensure Docker is installed (auto-install if missing),
+# build the image on first run, then re-exec inside the container.
+# Inside Docker (/.dockerenv present): skip wrapper, build directly.
 
 DOCKER_IMAGE="qemu-dev:latest"
 DOCKER_DL_CACHE="$TOP/.docker-dl"
@@ -13,20 +14,18 @@ DOCKER_DL_CACHE="$TOP/.docker-dl"
 _in_docker() { [ -f /.dockerenv ]; }
 
 if ! _in_docker; then
-    if ! command -v docker >/dev/null 2>&1; then
-        echo "ERROR: Docker not found."
-        echo "  Install Docker: https://docs.docker.com/get-docker/"
-        exit 1
-    fi
+    # shellcheck source=scripts/docker_lib.sh
+    source "$TOP/scripts/docker_lib.sh"
+    _ensure_docker   # installs Docker if missing, sets DOCKER_CMD
 
-    if ! docker image inspect "$DOCKER_IMAGE" >/dev/null 2>&1; then
+    if ! $DOCKER_CMD image inspect "$DOCKER_IMAGE" >/dev/null 2>&1; then
         echo "==> Building Docker image '$DOCKER_IMAGE' (first run only, ~3 min)..."
-        docker build -t "$DOCKER_IMAGE" "$TOP"
+        $DOCKER_CMD build -t "$DOCKER_IMAGE" "$TOP"
     fi
 
     mkdir -p "$DOCKER_DL_CACHE"
 
-    exec docker run --rm \
+    exec $DOCKER_CMD run --rm \
         -v "$TOP:/workspace" \
         -v "$DOCKER_DL_CACHE:/dl" \
         -e BR2_DL_DIR=/dl \
