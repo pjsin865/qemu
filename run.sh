@@ -3,6 +3,30 @@ set -euo pipefail
 
 TOP="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
+# ── Docker wrapper ────────────────────────────────────────────
+
+DOCKER_IMAGE="qemu-dev:latest"
+
+_in_docker() { [ -f /.dockerenv ]; }
+
+if ! _in_docker; then
+    if ! command -v docker >/dev/null 2>&1; then
+        echo "ERROR: Docker not found."
+        echo "  Install Docker: https://docs.docker.com/get-docker/"
+        exit 1
+    fi
+    if ! docker image inspect "$DOCKER_IMAGE" >/dev/null 2>&1; then
+        echo "ERROR: Docker image '$DOCKER_IMAGE' not found. Run ./build.sh first." >&2
+        exit 1
+    fi
+    # -it: allocate TTY for interactive QEMU serial console
+    exec docker run --rm -it \
+        -v "$TOP:/workspace" \
+        -w /workspace \
+        "$DOCKER_IMAGE" \
+        ./run.sh "$@"
+fi
+
 # ── 경로 설정 ─────────────────────────────────────────────────
 IMAGES_DIR="$TOP/buildroot/output/images"
 BUILDROOT_QEMU="$TOP/buildroot/output/build/host-qemu-10.2.0/build/qemu-system-aarch64"
@@ -83,8 +107,12 @@ run_linux() {
 
     # ── 사전 확인 ──
     if [ ! -f "$BUILDROOT_QEMU" ]; then
-        echo "ERROR: QEMU not found: $BUILDROOT_QEMU" >&2
-        echo "  → ./build.sh buildroot" >&2; exit 1
+        BUILDROOT_QEMU="$(command -v qemu-system-aarch64 2>/dev/null || true)"
+        if [ -z "$BUILDROOT_QEMU" ]; then
+            echo "ERROR: qemu-system-aarch64 not found." >&2
+            echo "  → ./build.sh buildroot" >&2; exit 1
+        fi
+        echo "Note: using system qemu-system-aarch64 (Buildroot QEMU not found)"
     fi
     if [ ! -f "$IMAGES_DIR/bl1.bin" ]; then
         echo "ERROR: images not found in $IMAGES_DIR" >&2

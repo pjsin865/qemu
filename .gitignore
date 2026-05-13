@@ -57,3 +57,6 @@ dkms.conf
 # FreeRTOS source and build output
 FreeRTOS/
 freertos_images/
+
+# Docker download cache
+.docker-dl/

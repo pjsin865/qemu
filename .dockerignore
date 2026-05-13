@@ -1,0 +1,10 @@
+buildroot/
+buildroot_old/
+FreeRTOS/
+freertos_images/
+freertos_cli/output/
+.docker-dl/
+Test/
+*.img
+*.raw
+compare_folders.sh
