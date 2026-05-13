@@ -19,9 +19,10 @@ if ! _in_docker; then
         exit 1
     fi
     # -it: allocate TTY for interactive QEMU serial console
+    # Mount at same absolute path as host (keeps buildroot hardcoded paths valid)
     exec $DOCKER_CMD run --rm -it \
-        -v "$TOP:/workspace" \
-        -w /workspace \
+        -v "$TOP:$TOP" \
+        -w "$TOP" \
         "$DOCKER_IMAGE" \
         ./run.sh "$@"
 fi

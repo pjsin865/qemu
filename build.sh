@@ -25,11 +25,13 @@ if ! _in_docker; then
 
     mkdir -p "$DOCKER_DL_CACHE"
 
+    # Mount at the same absolute path as the host so that any hardcoded
+    # paths baked into buildroot host-tool scripts (e.g. fakeroot) remain valid.
     exec $DOCKER_CMD run --rm \
-        -v "$TOP:/workspace" \
+        -v "$TOP:$TOP" \
         -v "$DOCKER_DL_CACHE:/dl" \
         -e BR2_DL_DIR=/dl \
-        -w /workspace \
+        -w "$TOP" \
         "$DOCKER_IMAGE" \
         ./build.sh "$@"
 fi
