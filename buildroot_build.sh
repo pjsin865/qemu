@@ -92,9 +92,9 @@ cd "$BUILDROOT_DIR"
 apply_buildroot_patches
 
 apply_defconfig() {
-    if [ -f .defconfig ]; then
-        make defconfig
-    elif [ -n "${BR2_DEFCONFIG:-}" ]; then
+    # Do NOT use .defconfig inside buildroot/ — that file is tracked by the
+    # buildroot repo itself (a 2008-era i686 default) and must not be loaded.
+    if [ -n "${BR2_DEFCONFIG:-}" ]; then
         make "$BR2_DEFCONFIG"
     else
         echo "NOTICE: Using default config: $DEFAULT_DEFCONFIG"
