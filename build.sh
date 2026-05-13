@@ -14,7 +14,7 @@ PARALLEL_JOBS="$(nproc)"
 # ── FreeRTOS ─────────────────────────────────────────────────
 FREERTOS_REPO="https://github.com/FreeRTOS/FreeRTOS.git"
 FREERTOS_DIR="$TOP/FreeRTOS"
-FREERTOS_DEMO_DIR="$FREERTOS_DIR/FreeRTOS/Demo/CORTEX_MPS2_QEMU_IAR_GCC/build/gcc"
+FREERTOS_CLI_DIR="$TOP/freertos_cli"
 FREERTOS_IMAGES="$TOP/freertos_images"
 
 # ─────────────────────────────────────────────────────────────
@@ -33,7 +33,7 @@ Buildroot (aarch64 / ATF + U-Boot + Linux):
   menuconfig             Buildroot menuconfig
 
 FreeRTOS (Cortex-M3 / MPS2 AN385):
-  freertos               Build FreeRTOS blinky demo
+  freertos               Build FreeRTOS CLI demo
 
 QEMU 실행은 run.sh 를 사용하세요:
   ./run.sh linux
@@ -168,10 +168,10 @@ target_menuconfig() {
 
 target_freertos() {
     _ensure_freertos
-    make -C "$FREERTOS_DEMO_DIR" clean
-    make -C "$FREERTOS_DEMO_DIR" -j"$PARALLEL_JOBS"
+    make -C "$FREERTOS_CLI_DIR" clean
+    make -C "$FREERTOS_CLI_DIR" -j"$PARALLEL_JOBS"
     mkdir -p "$FREERTOS_IMAGES"
-    cp -v "$FREERTOS_DEMO_DIR/output/RTOSDemo.out" "$FREERTOS_IMAGES/RTOSDemo.out"
+    cp -v "$FREERTOS_CLI_DIR/output/RTOSDemo.out" "$FREERTOS_IMAGES/RTOSDemo.out"
     echo "Done. Binary: $FREERTOS_IMAGES/RTOSDemo.out"
 }
 

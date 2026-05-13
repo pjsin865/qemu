@@ -18,7 +18,7 @@ Usage: $0 <target> [options]
 
 Targets:
   linux              ATF → U-Boot → Linux (aarch64 / Cortex-A57)
-  freertos           FreeRTOS blinky (Cortex-M3 / MPS2 AN385)
+  freertos           FreeRTOS CLI shell (Cortex-M3 / MPS2 AN385)
 
 Linux options:
   --smp N            vCPU 수 (기본: 1)
