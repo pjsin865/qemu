@@ -61,6 +61,7 @@ freertos_images/
 # Zephyr west workspace, venv, and build output
 zephyr_workspace/
 zephyr_images/
+zephyr_riscv_images/
 .zephyr-venv/
 
 # Buildroot RISC-V output

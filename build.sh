@@ -60,6 +60,8 @@ ZEPHYR_IMAGES="$TOP/zephyr_images"
 ZEPHYR_VENV="$TOP/.zephyr-venv"
 ZEPHYR_VERSION="v4.1.0"
 ZEPHYR_BOARD="mps2/an385"
+ZEPHYR_RISCV_BOARD="qemu_riscv64"
+ZEPHYR_RISCV_IMAGES="$TOP/zephyr_riscv_images"
 ZEPHYR_SAMPLE="samples/subsys/shell/shell_module"
 
 # ─────────────────────────────────────────────────────────────
@@ -82,6 +84,9 @@ FreeRTOS (Cortex-M3 / MPS2 AN385):
 
 Zephyr (Cortex-M3 / MPS2 AN385):
   zephyr                 Build Zephyr Shell demo
+
+Zephyr (RISC-V / qemu_riscv64):
+  zephyr-riscv           Build Zephyr Shell demo (riscv64)
 
 RISC-V (riscv64 / QEMU virt):
   buildroot-riscv        Linux full build (OpenSBI + Linux)
@@ -295,6 +300,36 @@ target_zephyr() {
     echo "Done. Binary: $ZEPHYR_IMAGES/zephyr.elf"
 }
 
+target_zephyr_riscv() {
+    _ensure_zephyr
+
+    local riscv_gcc
+    riscv_gcc="$(command -v riscv-none-elf-gcc 2>/dev/null \
+              || command -v riscv64-unknown-elf-gcc 2>/dev/null \
+              || true)"
+    if [ -z "$riscv_gcc" ]; then
+        echo "ERROR: RISC-V GCC not found (riscv-none-elf-gcc / riscv64-unknown-elf-gcc)." >&2
+        echo "  Rebuild Docker image: docker rmi qemu-dev:latest && ./build.sh zephyr-riscv" >&2
+        exit 1
+    fi
+    local riscv_prefix="${riscv_gcc%gcc}"   # strip trailing 'gcc' → full path prefix
+
+    export ZEPHYR_TOOLCHAIN_VARIANT=cross-compile
+    export CROSS_COMPILE="$riscv_prefix"
+    export ZEPHYR_BASE="$ZEPHYR_DIR/zephyr"
+
+    echo "Building Zephyr ($ZEPHYR_SAMPLE) for $ZEPHYR_RISCV_BOARD..."
+    west build -b "$ZEPHYR_RISCV_BOARD" \
+        "$ZEPHYR_DIR/zephyr/$ZEPHYR_SAMPLE" \
+        --build-dir "$ZEPHYR_DIR/build_riscv" \
+        -p always
+
+    mkdir -p "$ZEPHYR_RISCV_IMAGES"
+    cp -v "$ZEPHYR_DIR/build_riscv/zephyr/zephyr.elf" "$ZEPHYR_RISCV_IMAGES/zephyr.elf"
+    cd "$TOP"
+    echo "Done. Binary: $ZEPHYR_RISCV_IMAGES/zephyr.elf"
+}
+
 # ── Dispatch ──────────────────────────────────────────────────
 
 if [ $# -eq 0 ]; then usage; exit 0; fi
@@ -309,6 +344,7 @@ case "$1" in
     menuconfig)             target_menuconfig ;;
     freertos)               target_freertos ;;
     zephyr)                 target_zephyr ;;
+    zephyr-riscv)           target_zephyr_riscv ;;
     buildroot-riscv)        target_buildroot_riscv ;;
     help|-h|--help)         usage ;;
     *)  echo "ERROR: unknown target '$1'" >&2; usage; exit 1 ;;
