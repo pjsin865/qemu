@@ -34,6 +34,7 @@ DISK_QCOW2="$TOP/my_disk_qcow2.img"
 DISK_RAW="$TOP/my_disk_raw.raw"
 FREERTOS_BIN="$TOP/freertos_images/RTOSDemo.out"
 ZEPHYR_BIN="$TOP/zephyr_images/zephyr.elf"
+BUILDROOT_RISCV_IMAGES="$TOP/buildroot_riscv_output/images"
 
 # ─────────────────────────────────────────────────────────────
 
@@ -43,6 +44,7 @@ Usage: $0 <target> [options]
 
 Targets:
   linux              ATF → U-Boot → Linux (aarch64 / Cortex-A57)
+  linux-riscv        OpenSBI → Linux (riscv64 / QEMU virt)
   freertos           FreeRTOS CLI shell (Cortex-M3 / MPS2 AN385)
   zephyr             Zephyr Shell (Cortex-M3 / MPS2 AN385)
 
@@ -60,11 +62,19 @@ FreeRTOS options:
 Zephyr options:
   --gdb              GDB 서버 활성화 (:1234, 연결 대기)
 
+RISC-V options:
+  --smp N            vCPU 수 (기본: 1)
+  --mem M            메모리 크기 (기본: 512M)
+  --no-net           네트워크 비활성화
+  --gdb              GDB 서버 활성화 (:1234, 연결 대기)
+
 Examples:
   $0 linux
   $0 linux --smp 2 --mem 2048M
   $0 linux --usb-storage
   $0 linux --gdb
+  $0 linux-riscv
+  $0 linux-riscv --smp 2 --mem 1024M
   $0 freertos
   $0 freertos --gdb
   $0 zephyr
@@ -218,6 +228,76 @@ run_freertos() {
     qemu-system-arm "${args[@]}"
 }
 
+# ── linux-riscv ──────────────────────────────────────────────
+
+run_linux_riscv() {
+    local smp=1
+    local mem="512M"
+    local opt_net=true
+    local opt_gdb=false
+
+    while [ $# -gt 0 ]; do
+        case "$1" in
+            --smp)    smp="$2";       shift 2 ;;
+            --mem)    mem="$2";       shift 2 ;;
+            --no-net) opt_net=false;  shift ;;
+            --gdb)    opt_gdb=true;   shift ;;
+            *) echo "ERROR: unknown option '$1'" >&2; usage; exit 1 ;;
+        esac
+    done
+
+    # QEMU: Buildroot-built 우선, 없으면 시스템 QEMU
+    local RISCV_QEMU
+    RISCV_QEMU="$(ls "$BUILDROOT_RISCV_IMAGES/../host/bin/qemu-system-riscv64" 2>/dev/null || true)"
+    [ -z "$RISCV_QEMU" ] && RISCV_QEMU="$(command -v qemu-system-riscv64 2>/dev/null || true)"
+    if [ -z "$RISCV_QEMU" ]; then
+        echo "ERROR: qemu-system-riscv64 not found." >&2
+        echo "  → ./build.sh buildroot-riscv" >&2; exit 1
+    fi
+
+    if [ ! -f "$BUILDROOT_RISCV_IMAGES/Image" ]; then
+        echo "ERROR: images not found in $BUILDROOT_RISCV_IMAGES" >&2
+        echo "  → ./build.sh buildroot-riscv" >&2; exit 1
+    fi
+
+    cd "$BUILDROOT_RISCV_IMAGES"
+
+    # rootfs: ext2 또는 ext4
+    local rootfs=""
+    for f in rootfs.ext2 rootfs.ext4; do
+        [ -f "$f" ] && rootfs="$f" && break
+    done
+    if [ -z "$rootfs" ]; then
+        echo "ERROR: rootfs not found in $BUILDROOT_RISCV_IMAGES" >&2; exit 1
+    fi
+
+    local args=(
+        -M virt
+        -nographic
+        -smp "$smp"
+        -m "$mem"
+        -kernel Image
+        -append "rootwait root=/dev/vda ro"
+        -drive file="$rootfs",if=none,format=raw,id=hd0
+        -device virtio-blk-device,drive=hd0
+    )
+
+    # OpenSBI (fw_jump.elf 존재 시)
+    [ -f fw_jump.elf ] && args+=(-bios fw_jump.elf)
+
+    if $opt_net; then
+        args+=(-netdev user,id=eth0 -device virtio-net-device,netdev=eth0)
+    fi
+
+    if $opt_gdb; then
+        echo "GDB 서버 대기 중... (riscv64-unknown-elf-gdb 또는 gdb-multiarch로 :1234 연결)"
+        args+=(-s -S)
+    fi
+
+    echo "Starting QEMU (Linux RISC-V): smp=$smp mem=$mem net=$opt_net gdb=$opt_gdb"
+    "$RISCV_QEMU" "${args[@]}"
+}
+
 # ── zephyr ───────────────────────────────────────────────────
 
 run_zephyr() {
@@ -259,9 +339,10 @@ if [ $# -eq 0 ]; then usage; exit 0; fi
 
 target="$1"; shift
 case "$target" in
-    linux)    run_linux    "$@" ;;
-    freertos) run_freertos "$@" ;;
-    zephyr)   run_zephyr   "$@" ;;
+    linux)       run_linux       "$@" ;;
+    linux-riscv) run_linux_riscv "$@" ;;
+    freertos)    run_freertos    "$@" ;;
+    zephyr)      run_zephyr      "$@" ;;
     help|-h|--help) usage ;;
     *) echo "ERROR: unknown target '$target'" >&2; usage; exit 1 ;;
 esac

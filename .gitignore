@@ -63,5 +63,8 @@ zephyr_workspace/
 zephyr_images/
 .zephyr-venv/
 
+# Buildroot RISC-V output
+buildroot_riscv_output/
+
 # Docker download cache
 .docker-dl/

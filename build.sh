@@ -36,13 +36,17 @@ if ! _in_docker; then
         ./build.sh "$@"
 fi
 
-# ── Buildroot ────────────────────────────────────────────────
+# ── Buildroot (aarch64) ──────────────────────────────────────
 BUILDROOT_DIR="$TOP/buildroot"
 BUILDROOT_REPO_URL="https://github.com/buildroot/buildroot.git"
 BUILDROOT_REPO_BRANCH=""   # leave empty for default branch
 DEFAULT_DEFCONFIG="qemu_aarch64_virt_defconfig"
 PATCH_DIR="$TOP/buildroot_patches"
 PARALLEL_JOBS="$(nproc)"
+
+# ── Buildroot (RISC-V) ───────────────────────────────────────
+BUILDROOT_RISCV_OUTPUT="$TOP/buildroot_riscv_output"
+BUILDROOT_RISCV_DEFCONFIG="qemu_riscv64_virt_defconfig"
 
 # ── FreeRTOS ─────────────────────────────────────────────────
 FREERTOS_REPO="https://github.com/FreeRTOS/FreeRTOS.git"
@@ -79,16 +83,21 @@ FreeRTOS (Cortex-M3 / MPS2 AN385):
 Zephyr (Cortex-M3 / MPS2 AN385):
   zephyr                 Build Zephyr Shell demo
 
+RISC-V (riscv64 / QEMU virt):
+  buildroot-riscv        Linux full build (OpenSBI + Linux)
+
 QEMU 실행은 run.sh 를 사용하세요:
   ./run.sh linux
   ./run.sh freertos
   ./run.sh zephyr
+  ./run.sh linux-riscv
 
 Examples:
   $0 buildroot
   $0 buildroot-kernel
   $0 freertos
   $0 zephyr
+  $0 buildroot-riscv
 EOF
 }
 
@@ -221,6 +230,21 @@ target_freertos() {
     echo "Done. Binary: $FREERTOS_IMAGES/RTOSDemo.out"
 }
 
+# ── Buildroot RISC-V helpers ─────────────────────────────────
+
+target_buildroot_riscv() {
+    # Reuse the same Buildroot source clone (aarch64), separate output dir
+    _ensure_buildroot
+    cd "$BUILDROOT_DIR"
+    if [ ! -f "$BUILDROOT_RISCV_OUTPUT/.config" ]; then
+        echo "Configuring Buildroot for RISC-V ($BUILDROOT_RISCV_DEFCONFIG)..."
+        make O="$BUILDROOT_RISCV_OUTPUT" "$BUILDROOT_RISCV_DEFCONFIG"
+    fi
+    _buildroot_make O="$BUILDROOT_RISCV_OUTPUT" -j"$PARALLEL_JOBS"
+    cd "$TOP"
+    echo "Done. Images: $BUILDROOT_RISCV_OUTPUT/images"
+}
+
 # ── Zephyr helpers ────────────────────────────────────────────
 
 _ensure_zephyr_venv() {
@@ -285,6 +309,7 @@ case "$1" in
     menuconfig)             target_menuconfig ;;
     freertos)               target_freertos ;;
     zephyr)                 target_zephyr ;;
+    buildroot-riscv)        target_buildroot_riscv ;;
     help|-h|--help)         usage ;;
     *)  echo "ERROR: unknown target '$1'" >&2; usage; exit 1 ;;
 esac

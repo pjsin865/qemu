@@ -16,7 +16,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     # ARM bare-metal toolchain (FreeRTOS / Zephyr)
     gcc-arm-none-eabi binutils-arm-none-eabi libnewlib-arm-none-eabi \
     # QEMU
-    qemu-system-arm qemu-system-aarch64 \
+    qemu-system-arm qemu-system-aarch64 qemu-system-misc \
     # Python venv (for Zephyr west workspace)
     python3-venv \
     && rm -rf /var/lib/apt/lists/*
