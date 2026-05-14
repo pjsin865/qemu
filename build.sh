@@ -146,7 +146,7 @@ _apply_defconfig() {
 
 _buildroot_make() {
     echo "Running: make $*"
-    make "$@"
+    FORCE_UNSAFE_CONFIGURE=1 make "$@"
 }
 
 _buildroot_setup() {
