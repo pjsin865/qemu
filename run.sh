@@ -33,6 +33,7 @@ BUILDROOT_QEMU="$TOP/buildroot/output/build/host-qemu-10.2.0/build/qemu-system-a
 DISK_QCOW2="$TOP/my_disk_qcow2.img"
 DISK_RAW="$TOP/my_disk_raw.raw"
 FREERTOS_BIN="$TOP/freertos_images/RTOSDemo.out"
+FREERTOS_RISCV_BIN="$TOP/freertos_riscv_images/RTOSDemo.axf"
 ZEPHYR_BIN="$TOP/zephyr_images/zephyr.elf"
 ZEPHYR_RISCV_BIN="$TOP/zephyr_riscv_images/zephyr.elf"
 BUILDROOT_RISCV_IMAGES="$TOP/buildroot_riscv_output/images"
@@ -47,6 +48,7 @@ Targets:
   linux              ATF → U-Boot → Linux (aarch64 / Cortex-A57)
   linux-riscv        OpenSBI → Linux (riscv64 / QEMU virt)
   freertos           FreeRTOS CLI shell (Cortex-M3 / MPS2 AN385)
+  freertos-riscv     FreeRTOS blinky demo (rv32 / QEMU virt)
   zephyr             Zephyr Shell (Cortex-M3 / MPS2 AN385)
   zephyr-riscv       Zephyr Shell (riscv64 / QEMU virt)
 
@@ -59,6 +61,9 @@ Linux options:
   --gdb              GDB 서버 활성화 (:1234, 연결 대기)
 
 FreeRTOS options:
+  --gdb              GDB 서버 활성화 (:1234, 연결 대기)
+
+FreeRTOS RISC-V options:
   --gdb              GDB 서버 활성화 (:1234, 연결 대기)
 
 Zephyr options:
@@ -82,6 +87,8 @@ Examples:
   $0 linux-riscv --smp 2 --mem 1024M
   $0 freertos
   $0 freertos --gdb
+  $0 freertos-riscv
+  $0 freertos-riscv --gdb
   $0 zephyr
   $0 zephyr --gdb
   $0 zephyr-riscv
@@ -343,6 +350,44 @@ run_zephyr() {
     qemu-system-arm "${args[@]}"
 }
 
+# ── freertos-riscv ───────────────────────────────────────────
+
+run_freertos_riscv() {
+    local opt_gdb=false
+
+    while [ $# -gt 0 ]; do
+        case "$1" in
+            --gdb) opt_gdb=true; shift ;;
+            *) echo "ERROR: unknown option '$1'" >&2; usage; exit 1 ;;
+        esac
+    done
+
+    if [ ! -f "$FREERTOS_RISCV_BIN" ]; then
+        echo "ERROR: binary not found: $FREERTOS_RISCV_BIN" >&2
+        echo "  → ./build.sh freertos-riscv" >&2; exit 1
+    fi
+
+    local args=(
+        -nographic
+        -machine virt
+        -net none
+        -chardev stdio,id=con,mux=on
+        -serial chardev:con
+        -mon chardev=con,mode=readline
+        -bios none
+        -smp 4
+        -kernel "$FREERTOS_RISCV_BIN"
+    )
+
+    if $opt_gdb; then
+        echo "GDB 서버 대기 중... (riscv64-unknown-elf-gdb 또는 gdb-multiarch로 :1234 연결)"
+        args+=(-s -S)
+    fi
+
+    echo "Starting QEMU (FreeRTOS RISC-V): gdb=$opt_gdb"
+    qemu-system-riscv32 "${args[@]}"
+}
+
 # ── zephyr-riscv ─────────────────────────────────────────────
 
 run_zephyr_riscv() {
@@ -393,11 +438,12 @@ if [ $# -eq 0 ]; then usage; exit 0; fi
 
 target="$1"; shift
 case "$target" in
-    linux)        run_linux        "$@" ;;
-    linux-riscv)  run_linux_riscv  "$@" ;;
-    freertos)     run_freertos     "$@" ;;
-    zephyr)       run_zephyr       "$@" ;;
-    zephyr-riscv) run_zephyr_riscv "$@" ;;
+    linux)          run_linux          "$@" ;;
+    linux-riscv)    run_linux_riscv    "$@" ;;
+    freertos)       run_freertos       "$@" ;;
+    freertos-riscv) run_freertos_riscv "$@" ;;
+    zephyr)         run_zephyr         "$@" ;;
+    zephyr-riscv)   run_zephyr_riscv   "$@" ;;
     help|-h|--help) usage ;;
     *) echo "ERROR: unknown target '$target'" >&2; usage; exit 1 ;;
 esac

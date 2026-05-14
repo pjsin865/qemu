@@ -57,6 +57,7 @@ dkms.conf
 # FreeRTOS source and build output
 FreeRTOS/
 freertos_images/
+freertos_riscv_images/
 
 # Zephyr west workspace, venv, and build output
 zephyr_workspace/

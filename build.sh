@@ -53,6 +53,8 @@ FREERTOS_REPO="https://github.com/FreeRTOS/FreeRTOS.git"
 FREERTOS_DIR="$TOP/FreeRTOS"
 FREERTOS_CLI_DIR="$TOP/freertos_cli"
 FREERTOS_IMAGES="$TOP/freertos_images"
+FREERTOS_RISCV_DEMO_DIR="$FREERTOS_DIR/FreeRTOS/Demo/RISC-V-Qemu-virt_GCC"
+FREERTOS_RISCV_IMAGES="$TOP/freertos_riscv_images"
 
 # ── Zephyr ───────────────────────────────────────────────────
 ZEPHYR_DIR="$TOP/zephyr_workspace"
@@ -81,6 +83,9 @@ Buildroot (aarch64 / ATF + U-Boot + Linux):
 
 FreeRTOS (Cortex-M3 / MPS2 AN385):
   freertos               Build FreeRTOS CLI demo
+
+FreeRTOS (RISC-V RV32 / QEMU virt):
+  freertos-riscv         Build FreeRTOS blinky demo (rv32, qemu-system-riscv32)
 
 Zephyr (Cortex-M3 / MPS2 AN385):
   zephyr                 Build Zephyr Shell demo
@@ -300,6 +305,29 @@ target_zephyr() {
     echo "Done. Binary: $ZEPHYR_IMAGES/zephyr.elf"
 }
 
+target_freertos_riscv() {
+    _ensure_freertos
+
+    # Detect RISC-V toolchain: prefer xPack riscv-none-elf-, fall back to riscv64-unknown-elf-
+    # Use only the basename prefix (not full path) so the Makefile's GCC version grep works.
+    local cross_prefix
+    if command -v riscv-none-elf-gcc >/dev/null 2>&1; then
+        cross_prefix="riscv-none-elf-"
+    elif command -v riscv64-unknown-elf-gcc >/dev/null 2>&1; then
+        cross_prefix="riscv64-unknown-elf-"
+    else
+        echo "ERROR: RISC-V GCC not found." >&2
+        echo "  Rebuild Docker image: docker rmi qemu-dev:latest && ./build.sh freertos-riscv" >&2
+        exit 1
+    fi
+
+    make -C "$FREERTOS_RISCV_DEMO_DIR" clean CROSS="$cross_prefix"
+    make -C "$FREERTOS_RISCV_DEMO_DIR" -j"$PARALLEL_JOBS" CROSS="$cross_prefix"
+    mkdir -p "$FREERTOS_RISCV_IMAGES"
+    cp -v "$FREERTOS_RISCV_DEMO_DIR/build/RTOSDemo.axf" "$FREERTOS_RISCV_IMAGES/RTOSDemo.axf"
+    echo "Done. Binary: $FREERTOS_RISCV_IMAGES/RTOSDemo.axf"
+}
+
 target_zephyr_riscv() {
     _ensure_zephyr
 
@@ -343,6 +371,7 @@ case "$1" in
     buildroot-kernel-clean) target_buildroot_kernel_clean ;;
     menuconfig)             target_menuconfig ;;
     freertos)               target_freertos ;;
+    freertos-riscv)         target_freertos_riscv ;;
     zephyr)                 target_zephyr ;;
     zephyr-riscv)           target_zephyr_riscv ;;
     buildroot-riscv)        target_buildroot_riscv ;;
