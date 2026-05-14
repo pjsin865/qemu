@@ -50,6 +50,14 @@ FREERTOS_DIR="$TOP/FreeRTOS"
 FREERTOS_CLI_DIR="$TOP/freertos_cli"
 FREERTOS_IMAGES="$TOP/freertos_images"
 
+# ── Zephyr ───────────────────────────────────────────────────
+ZEPHYR_DIR="$TOP/zephyr_workspace"
+ZEPHYR_IMAGES="$TOP/zephyr_images"
+ZEPHYR_VENV="$TOP/.zephyr-venv"
+ZEPHYR_VERSION="v4.1.0"
+ZEPHYR_BOARD="mps2/an385"
+ZEPHYR_SAMPLE="samples/subsys/shell/shell_module"
+
 # ─────────────────────────────────────────────────────────────
 
 usage() {
@@ -68,14 +76,19 @@ Buildroot (aarch64 / ATF + U-Boot + Linux):
 FreeRTOS (Cortex-M3 / MPS2 AN385):
   freertos               Build FreeRTOS CLI demo
 
+Zephyr (Cortex-M3 / MPS2 AN385):
+  zephyr                 Build Zephyr Shell demo
+
 QEMU 실행은 run.sh 를 사용하세요:
   ./run.sh linux
   ./run.sh freertos
+  ./run.sh zephyr
 
 Examples:
   $0 buildroot
   $0 buildroot-kernel
   $0 freertos
+  $0 zephyr
 EOF
 }
 
@@ -208,6 +221,56 @@ target_freertos() {
     echo "Done. Binary: $FREERTOS_IMAGES/RTOSDemo.out"
 }
 
+# ── Zephyr helpers ────────────────────────────────────────────
+
+_ensure_zephyr_venv() {
+    # venv is in $TOP (mounted volume) → survives container restarts
+    if [ ! -d "$ZEPHYR_VENV" ]; then
+        echo "Creating Zephyr Python venv..."
+        python3 -m venv "$ZEPHYR_VENV"
+    fi
+    # shellcheck source=/dev/null
+    source "$ZEPHYR_VENV/bin/activate"
+}
+
+_ensure_zephyr() {
+    _ensure_zephyr_venv
+
+    # Install/upgrade west inside venv (idempotent)
+    pip install --quiet --upgrade pip west
+
+    if [ ! -d "$ZEPHYR_DIR" ]; then
+        echo "Initializing Zephyr workspace ($ZEPHYR_VERSION)..."
+        echo "  → First run downloads ~500MB — expect 5-10 min."
+        west init --mr "$ZEPHYR_VERSION" "$ZEPHYR_DIR"
+        cd "$ZEPHYR_DIR"
+        west update
+        pip install --quiet -r "$ZEPHYR_DIR/zephyr/scripts/requirements.txt"
+        echo "Zephyr workspace ready."
+    else
+        cd "$ZEPHYR_DIR"
+    fi
+}
+
+target_zephyr() {
+    _ensure_zephyr
+
+    export ZEPHYR_TOOLCHAIN_VARIANT=gnuarmemb
+    export GNUARMEMB_TOOLCHAIN_PATH=/usr
+    export ZEPHYR_BASE="$ZEPHYR_DIR/zephyr"
+
+    echo "Building Zephyr ($ZEPHYR_SAMPLE) for $ZEPHYR_BOARD..."
+    west build -b "$ZEPHYR_BOARD" \
+        "$ZEPHYR_DIR/zephyr/$ZEPHYR_SAMPLE" \
+        --build-dir "$ZEPHYR_DIR/build" \
+        -p always
+
+    mkdir -p "$ZEPHYR_IMAGES"
+    cp -v "$ZEPHYR_DIR/build/zephyr/zephyr.elf" "$ZEPHYR_IMAGES/zephyr.elf"
+    cd "$TOP"
+    echo "Done. Binary: $ZEPHYR_IMAGES/zephyr.elf"
+}
+
 # ── Dispatch ──────────────────────────────────────────────────
 
 if [ $# -eq 0 ]; then usage; exit 0; fi
@@ -221,6 +284,7 @@ case "$1" in
     buildroot-kernel-clean) target_buildroot_kernel_clean ;;
     menuconfig)             target_menuconfig ;;
     freertos)               target_freertos ;;
+    zephyr)                 target_zephyr ;;
     help|-h|--help)         usage ;;
     *)  echo "ERROR: unknown target '$1'" >&2; usage; exit 1 ;;
 esac

@@ -33,6 +33,7 @@ BUILDROOT_QEMU="$TOP/buildroot/output/build/host-qemu-10.2.0/build/qemu-system-a
 DISK_QCOW2="$TOP/my_disk_qcow2.img"
 DISK_RAW="$TOP/my_disk_raw.raw"
 FREERTOS_BIN="$TOP/freertos_images/RTOSDemo.out"
+ZEPHYR_BIN="$TOP/zephyr_images/zephyr.elf"
 
 # ─────────────────────────────────────────────────────────────
 
@@ -43,6 +44,7 @@ Usage: $0 <target> [options]
 Targets:
   linux              ATF → U-Boot → Linux (aarch64 / Cortex-A57)
   freertos           FreeRTOS CLI shell (Cortex-M3 / MPS2 AN385)
+  zephyr             Zephyr Shell (Cortex-M3 / MPS2 AN385)
 
 Linux options:
   --smp N            vCPU 수 (기본: 1)
@@ -55,6 +57,9 @@ Linux options:
 FreeRTOS options:
   --gdb              GDB 서버 활성화 (:1234, 연결 대기)
 
+Zephyr options:
+  --gdb              GDB 서버 활성화 (:1234, 연결 대기)
+
 Examples:
   $0 linux
   $0 linux --smp 2 --mem 2048M
@@ -62,6 +67,8 @@ Examples:
   $0 linux --gdb
   $0 freertos
   $0 freertos --gdb
+  $0 zephyr
+  $0 zephyr --gdb
 EOF
 }
 
@@ -211,6 +218,41 @@ run_freertos() {
     qemu-system-arm "${args[@]}"
 }
 
+# ── zephyr ───────────────────────────────────────────────────
+
+run_zephyr() {
+    local opt_gdb=false
+
+    while [ $# -gt 0 ]; do
+        case "$1" in
+            --gdb) opt_gdb=true; shift ;;
+            *) echo "ERROR: unknown option '$1'" >&2; usage; exit 1 ;;
+        esac
+    done
+
+    if [ ! -f "$ZEPHYR_BIN" ]; then
+        echo "ERROR: binary not found: $ZEPHYR_BIN" >&2
+        echo "  → ./build.sh zephyr" >&2; exit 1
+    fi
+
+    local args=(
+        -machine mps2-an385
+        -cpu cortex-m3
+        -monitor none
+        -nographic
+        -serial stdio
+        -kernel "$ZEPHYR_BIN"
+    )
+
+    if $opt_gdb; then
+        echo "GDB 서버 대기 중... (arm-none-eabi-gdb로 :1234 연결)"
+        args+=(-s -S)
+    fi
+
+    echo "Starting QEMU (Zephyr): gdb=$opt_gdb"
+    qemu-system-arm "${args[@]}"
+}
+
 # ── Dispatch ──────────────────────────────────────────────────
 
 if [ $# -eq 0 ]; then usage; exit 0; fi
@@ -219,6 +261,7 @@ target="$1"; shift
 case "$target" in
     linux)    run_linux    "$@" ;;
     freertos) run_freertos "$@" ;;
+    zephyr)   run_zephyr   "$@" ;;
     help|-h|--help) usage ;;
     *) echo "ERROR: unknown target '$target'" >&2; usage; exit 1 ;;
 esac

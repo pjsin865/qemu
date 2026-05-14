@@ -58,5 +58,10 @@ dkms.conf
 FreeRTOS/
 freertos_images/
 
+# Zephyr west workspace, venv, and build output
+zephyr_workspace/
+zephyr_images/
+.zephyr-venv/
+
 # Docker download cache
 .docker-dl/
