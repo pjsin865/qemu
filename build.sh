@@ -53,7 +53,7 @@ FREERTOS_REPO="https://github.com/FreeRTOS/FreeRTOS.git"
 FREERTOS_DIR="$TOP/FreeRTOS"
 FREERTOS_CLI_DIR="$TOP/freertos_cli"
 FREERTOS_IMAGES="$TOP/freertos_images"
-FREERTOS_RISCV_DEMO_DIR="$FREERTOS_DIR/FreeRTOS/Demo/RISC-V-Qemu-virt_GCC"
+FREERTOS_RISCV_CLI_DIR="$TOP/freertos_riscv_cli"
 FREERTOS_RISCV_IMAGES="$TOP/freertos_riscv_images"
 
 # ── Zephyr ───────────────────────────────────────────────────
@@ -321,10 +321,10 @@ target_freertos_riscv() {
         exit 1
     fi
 
-    make -C "$FREERTOS_RISCV_DEMO_DIR" clean CROSS="$cross_prefix"
-    make -C "$FREERTOS_RISCV_DEMO_DIR" -j"$PARALLEL_JOBS" CROSS="$cross_prefix"
+    make -C "$FREERTOS_RISCV_CLI_DIR" clean CROSS="$cross_prefix"
+    make -C "$FREERTOS_RISCV_CLI_DIR" -j"$PARALLEL_JOBS" CROSS="$cross_prefix"
     mkdir -p "$FREERTOS_RISCV_IMAGES"
-    cp -v "$FREERTOS_RISCV_DEMO_DIR/build/RTOSDemo.axf" "$FREERTOS_RISCV_IMAGES/RTOSDemo.axf"
+    cp -v "$FREERTOS_RISCV_CLI_DIR/build/RTOSDemo.axf" "$FREERTOS_RISCV_IMAGES/RTOSDemo.axf"
     echo "Done. Binary: $FREERTOS_RISCV_IMAGES/RTOSDemo.axf"
 }
 
