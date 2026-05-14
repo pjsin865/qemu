@@ -544,6 +544,20 @@ rm -rf buildroot/
 
 ---
 
+### Buildroot QEMU 빌드 중 ncurses 관련 오류
+
+`host-qemu` 빌드 시 ncurses 의존성 문제가 발생하면 ncurses와 QEMU를 순서대로 재빌드합니다.
+
+```bash
+# Docker 내부에서 실행 (./build.sh 진입 후)
+cd buildroot/
+make host-ncurses-dirclean
+make host-qemu-dirclean
+make host-qemu
+```
+
+---
+
 ### Buildroot 빌드 중 i686 크로스 컴파일러 오류
 
 `buildroot/.defconfig` (2008년 i686 기본값)가 로드되는 경우입니다.  
