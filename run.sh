@@ -278,15 +278,18 @@ run_linux_riscv() {
         -m "$mem"
         -kernel Image
         -append "rootwait root=/dev/vda ro"
-        -drive file="$rootfs",if=none,format=raw,id=hd0
-        -device virtio-blk-device,drive=hd0
+        -drive file="$rootfs",format=raw
     )
 
-    # OpenSBI (fw_jump.elf 존재 시)
-    [ -f fw_jump.elf ] && args+=(-bios fw_jump.elf)
+    # OpenSBI: fw_jump.bin 우선, 없으면 fw_jump.elf
+    if [ -f fw_jump.bin ]; then
+        args+=(-bios fw_jump.bin)
+    elif [ -f fw_jump.elf ]; then
+        args+=(-bios fw_jump.elf)
+    fi
 
     if $opt_net; then
-        args+=(-netdev user,id=eth0 -device virtio-net-device,netdev=eth0)
+        args+=(-netdev user,id=net0 -device virtio-net-device,netdev=net0)
     fi
 
     if $opt_gdb; then
